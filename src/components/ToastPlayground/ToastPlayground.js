@@ -1,13 +1,26 @@
 import React, { useState } from "react";
 
+import ToastShelf from "../ToastShelf/ToastShelf";
 import Button from "../Button";
 
 import styles from "./ToastPlayground.module.css";
+import { ToastContext } from "../ToastProvider/ToastProvider";
 
 const VARIANT_OPTIONS = ["notice", "warning", "success", "error"];
 
 function ToastPlayground() {
+  const { createNewToast } = React.useContext(ToastContext);
   const [message, setMessage] = React.useState("");
+  const [variant, setVariant] = React.useState("");
+
+  function handleCreateToast(event) {
+    event.preventDefault();
+
+    createNewToast(message, variant);
+
+    setMessage("");
+    setVariant(VARIANT_OPTIONS[0]);
+  }
   return (
     <div className={styles.wrapper}>
       <header>
@@ -15,7 +28,9 @@ function ToastPlayground() {
         <h1>Toast Playground</h1>
       </header>
 
-      <div className={styles.controlsWrapper}>
+      <ToastShelf />
+
+      <form className={styles.controlsWrapper} onSubmit={handleCreateToast}>
         <div className={styles.row}>
           <label
             htmlFor="message"
@@ -28,6 +43,7 @@ function ToastPlayground() {
             <textarea
               id="message"
               className={styles.messageInput}
+              value={message}
               onChange={(event) => {
                 setMessage(event.target.value);
               }}
@@ -48,17 +64,24 @@ function ToastPlayground() {
               notice
             </label> */}
             {/* TODO Other Variant radio buttons here */}
-            {VARIANT_OPTIONS.map((option, index) => (
-              <label htmlFor="variant-notice" key={index}>
-                <input
-                  type="radio"
-                  id="variant-notice"
-                  name="variant"
-                  value={option}
-                />
-                {option}
-              </label>
-            ))}
+            {VARIANT_OPTIONS.map((option, index) => {
+              const id = `variant-${option}`;
+              return (
+                <label htmlFor={id} key={index}>
+                  <input
+                    id={id}
+                    type="radio"
+                    name="variant"
+                    value={option}
+                    checked={option === variant}
+                    onChange={(event) => {
+                      setVariant(event.target.value);
+                    }}
+                  />
+                  {option}
+                </label>
+              );
+            })}
           </div>
         </div>
 
@@ -68,7 +91,7 @@ function ToastPlayground() {
             <Button>Pop Toast!</Button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
